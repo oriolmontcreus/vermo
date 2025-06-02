@@ -1,0 +1,95 @@
+version: '3.8'
+
+services:
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: vermo_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: vermo
+      MYSQL_USER: vermo_user
+      MYSQL_PASSWORD: vermo_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d
+    networks:
+      - vermo_network
+    restart: unless-stopped
+
+  # PHP-FPM Service
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: vermo_php
+    volumes:
+      - .:/var/www/html
+      - ./docker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini
+    networks:
+      - vermo_network
+    depends_on:
+      - mysql
+    environment:
+      - DB_CONNECTION=mysql
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_DATABASE=vermo
+      - DB_USERNAME=vermo_user
+      - DB_PASSWORD=vermo_password
+    restart: unless-stopped
+
+  # Nginx Service
+  nginx:
+    image: nginx:alpine
+    container_name: vermo_nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - .:/var/www/html
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf
+    networks:
+      - vermo_network
+    depends_on:
+      - php
+    restart: unless-stopped
+
+  # Node.js Service for Vite Development
+  node:
+    image: node:18-alpine
+    container_name: vermo_node
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+      - node_modules:/var/www/html/node_modules
+    ports:
+      - "5173:5173"
+    networks:
+      - vermo_network
+    environment:
+      - VITE_DEV_SERVER_HOST=localhost
+      - VITE_DEV_SERVER_PORT=5173
+    command: sh -c "npm install && npm run dev:local -- --host 0.0.0.0 --port 5173"
+    restart: unless-stopped
+
+  # Redis Service (optional, for caching and sessions)
+  redis:
+    image: redis:alpine
+    container_name: vermo_redis
+    ports:
+      - "6379:6379"
+    networks:
+      - vermo_network
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+  node_modules:
+
+networks:
+  vermo_network:
+    driver: bridge 

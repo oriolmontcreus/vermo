@@ -10,10 +10,24 @@ export default defineConfig({
             input: ['resources/css/app.css', 'resources/js/app.tsx'],
             ssr: 'resources/js/ssr.tsx',
             refresh: true,
+            detectTls: false,
         }),
         react(),
         tailwindcss(),
     ],
+    server: {
+        host: '0.0.0.0',
+        port: 5173,
+        origin: 'http://localhost:5173',
+        hmr: {
+            host: 'localhost',
+            port: 5173,
+        },
+        watch: {
+            usePolling: true,
+        },
+        cors: true,
+    },
     esbuild: {
         jsx: 'automatic',
     },
