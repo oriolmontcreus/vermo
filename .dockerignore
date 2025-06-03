@@ -11,6 +11,7 @@ Dockerfile
 # NPM
 node_modules
 npm-debug.log
+package-lock.json
 
 # Environment files
 .env
@@ -42,5 +43,23 @@ storage/framework/views/*
 storage/logs/*
 bootstrap/cache/*
 
+# Development files
+*.bat
+docker/scripts/*
+start-dev.bat
+
+# Frontend build artifacts
+public/hot
+public/build
+public/storage
+
 # Vendor (will be installed in container)
-vendor 
+vendor
+
+# Additional performance exclusions
+.prettierrc
+.prettierignore
+eslint.config.js
+vite.config.ts
+tsconfig.json
+components.json 

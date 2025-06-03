@@ -47,8 +47,8 @@ RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/storage \
     && chmod -R 755 /var/www/html/bootstrap/cache
 
-# Install PHP dependencies
-RUN composer install --no-dev --optimize-autoloader
+# Install PHP dependencies (include dev for development environment)
+RUN composer install --optimize-autoloader
 
 # Generate application key and cache config (if .env exists)
 RUN if [ -f .env ]; then \

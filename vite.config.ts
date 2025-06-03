@@ -24,7 +24,14 @@ export default defineConfig({
             port: 5173,
         },
         watch: {
-            usePolling: true,
+            ignored: [
+                '**/node_modules/**',
+                '**/vendor/**',
+                '**/storage/**',
+                '**/public/hot',
+                '**/public/build/**',
+                '**/.git/**'
+            ]
         },
         cors: true,
     },
@@ -36,4 +43,12 @@ export default defineConfig({
             'ziggy-js': resolve(__dirname, 'vendor/tightenco/ziggy'),
         },
     },
+    optimizeDeps: {
+        include: [
+            'react',
+            'react-dom',
+            '@inertiajs/react',
+            '@headlessui/react'
+        ]
+    }
 });
